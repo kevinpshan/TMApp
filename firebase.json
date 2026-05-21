@@ -1,10 +1,14 @@
 {
   "hosting": {
+    "site": "sdtm-tm-app-timer",
     "public": ".",
     "ignore": [
       "firebase.json",
+      ".firebaserc",
       "**/.*",
-      "**/node_modules/**"
+      "**/node_modules/**",
+      ".github/**",
+      "README.md"
     ]
   }
 }
