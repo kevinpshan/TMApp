@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Toastmaster Meeting App</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="apple-touch-icon" href="icon.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
+
+        :root {
+            --bg: #F5F4F0;
+            --card: #FFFFFF;
+            --text: #1A1A18;
+            --subtext: #6B6B65;
+            --border: #E2E1DC;
+            --accent: #C84B2F;
+            --accent-light: #FAF0ED;
+            --green: #2D6A4F;
+            --green-bg: #D8F3DC;
+            --yellow: #B5830A;
+            --yellow-bg: #FFF3CD;
+            --red: #C84B2F;
+            --red-bg: #FAF0ED;
+            --gold: #B5830A;
+            --radius: 16px;
+            --shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        /* ── SCREENS ── */
+        .screen { display: none; flex-direction: column; height: 100%; overflow: hidden; }
+        .screen.active { display: flex; }
+
+        /* ── HEADER ── */
+        .header {
+            padding: 48px 24px 16px;
+            flex-shrink: 0;
+        }
+        .header h1 {
+            font-size: 36px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            line-height: 1;
+            color: var(--text);
+        }
+        .header .sub {
+            font-size: 15px;
+            color: var(--subtext);
+            margin-top: 4px;
+            font-weight: 500;
+        }
+        .header-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+        }
+        .settings-btn {
+            font-size: 26px;
+            cursor: pointer;
+            padding: 4px;
+            color: var(--subtext);
+            margin-top: 4px;
+        }
+
+        /* ── TABS ── */
+        .tabs {
+            display: flex;
+            background: #ECEAE4;
+            border-radius: 12px;
+            padding: 3px;
+            margin: 0 24px 20px;
+            flex-shrink: 0;
+        }
+        .tab {
+            flex: 1;
+            padding: 11px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            color: var(--subtext);
+            transition: all 0.2s;
+        }
+        .tab.active {
+            background: white;
+            color: var(--accent);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+
+        /* ── SCROLL CONTAINER ── */
+        .scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 24px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* ── MENU CARDS ── */
+        .menu-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 22px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            margin-bottom: 12px;
+            transition: transform 0.1s;
+            text-decoration: none;
+            color: inherit;
+        }
+        .menu-card:active { transform: scale(0.98); }
+        .menu-card h3 { font-size: 22px; font-weight: 700; margin-bottom: 3px; }
+        .menu-card p { font-size: 14px; color: var(--subtext); font-weight: 500; }
+        .menu-icon { font-size: 36px; flex-shrink: 0; }
+
+        /* ── ROLE GRID ── */
+        .role-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .role-card {
+            background: var(--card);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .role-card:active { transform: scale(0.97); }
+        .role-card.selected {
+            border-color: var(--accent);
+            background: var(--accent-light);
+        }
+        .role-card h4 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
+        .role-card p { font-size: 12px; color: var(--subtext); margin-top: 2px; font-weight: 500; }
+
+        /* ── NAME INPUT ── */
+        .name-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+        input[type="text"], input[type="number"], input[type="password"] {
+            background: var(--card);
+            border: 1.5px solid var(--border);
+            color: var(--text);
+            padding: 14px 16px;
+            border-radius: 12px;
+            font-size: 17px;
+            font-family: 'DM Sans', sans-serif;
+            outline: none;
+            width: 100%;
+        }
+        input:focus { border-color: var(--accent); }
+
+        /* ── SPEAKER LIST ── */
+        .speaker-list {
+            background: var(--card);
+            border-radius: 12px;
+            border: 1.5px solid var(--border);
+            overflow-y: auto;
+            max-height: 160px;
+            margin-bottom: 12px;
+        }
+        .speaker-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 16px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .speaker-item:last-child { border-bottom: none; }
+        .speaker-name { color: var(--accent); cursor: pointer; flex: 1; }
+        .speaker-del { color: var(--red); font-weight: 800; font-size: 18px; cursor: pointer; padding: 4px 8px; }
+
+        /* ── FOOTER BUTTONS ── */
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            padding: 14px 24px 24px;
+            flex-shrink: 0;
+        }
+        .btn {
+            flex: 1;
+            padding: 18px;
+            border-radius: 14px;
+            font-size: 18px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            transition: transform 0.1s;
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-secondary { background: #ECEAE4; color: var(--text); }
+        .btn-green { background: var(--green); color: white; }
+        .btn-small {
+            flex: 0;
+            padding: 14px 20px;
+            font-size: 15px;
+            border-radius: 12px;
+        }
+
+        /* ── TIMER DISPLAY ── */
+        #timerDisplay {
+            background: var(--bg);
+            transition: background 0.5s ease;
+        }
+        .timer-speaker {
+            text-align: center;
+            font-size: 22px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--subtext);
+            padding: 32px 24px 0;
+            letter-spacing: 0.5px;
+        }
+        .timer-role {
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--subtext);
+            opacity: 0.7;
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .timer-digits {
+            font-family: 'DM Mono', monospace;
+            font-size: clamp(96px, 28vw, 180px);
+            font-weight: 500;
+            text-align: center;
+            margin: auto 0;
+            color: var(--text);
+            letter-spacing: -2px;
+            line-height: 1;
+            padding: 20px 0;
+        }
+        .timer-status {
+            text-align: center;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--subtext);
+            opacity: 0.6;
+            margin-bottom: 8px;
+        }
+
+        /* ── AH COUNTER ── */
+        .tally-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            padding-bottom: 16px;
+        }
+        @media (min-width: 400px) { .tally-grid { grid-template-columns: repeat(3, 1fr); } }
+        .tally-card {
+            background: var(--card);
+            border: 1.5px solid var(--border);
+            border-radius: 14px;
+            padding: 14px 10px 10px;
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.1s;
+            min-height: 90px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .tally-card:active { transform: scale(0.96); }
+        .tally-card .count {
+            font-size: 40px;
+            font-weight: 800;
+            color: var(--accent);
+            line-height: 1;
+            margin-bottom: 4px;
+            font-variant-numeric: tabular-nums;
+        }
+        .tally-card .label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--subtext);
+        }
+        .tally-minus {
+            position: absolute;
+            bottom: 5px;
+            right: 6px;
+            width: 26px;
+            height: 26px;
+            background: #ECEAE4;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--subtext);
+            cursor: pointer;
+        }
+        .tally-del {
+            position: absolute;
+            top: 5px;
+            right: 6px;
+            width: 22px;
+            height: 22px;
+            background: var(--red);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 800;
+            color: white;
+            cursor: pointer;
+        }
+
+        /* ── REPORT ── */
+        .report-box {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 18px;
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            font-family: 'DM Mono', monospace;
+            font-size: 14px;
+            line-height: 1.7;
+            color: var(--text);
+            white-space: pre-wrap;
+        }
+
+        /* ── SETTINGS ── */
+        .settings-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+        .settings-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        .settings-row:last-child { border-bottom: none; }
+        .settings-row h4 { font-size: 17px; font-weight: 700; }
+        .settings-row p { font-size: 13px; color: var(--subtext); margin-top: 2px; }
+
+        /* ── TOGGLE ── */
+        .switch { position: relative; display: inline-block; width: 48px; height: 28px; flex-shrink: 0; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #ccc; transition: .3s; border-radius: 28px; }
+        .slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 3px; bottom: 3px; background: white; transition: .3s; border-radius: 50%; }
+        input:checked + .slider { background: var(--green); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        /* ── MODAL ── */
+        #modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(6px);
+            padding: 24px;
+        }
+        .modal-box {
+            background: white;
+            border-radius: 24px;
+            padding: 28px 24px 20px;
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+        }
+        .modal-box h2 { font-size: 22px; font-weight: 800; margin-bottom: 12px; }
+        .modal-box .modal-body { font-size: 16px; color: var(--subtext); margin-bottom: 20px; line-height: 1.5; }
+        .modal-box .modal-body input { margin-top: 12px; }
+        .modal-btns { display: flex; gap: 10px; }
+
+        /* ── CREDIT FOOTER ── */
+        .credit {
+            text-align: center;
+            padding: 20px 24px 28px;
+            flex-shrink: 0;
+            border-top: 1px solid var(--border);
+        }
+        .credit p { font-size: 13px; color: var(--subtext); font-weight: 500; }
+        .credit .version { font-size: 11px; opacity: 0.4; margin-top: 4px; }
+
+        /* ── TIMER BG STATES ── */
+        #timerDisplay.green { background: var(--green-bg); }
+        #timerDisplay.green .timer-digits { color: var(--green); }
+        #timerDisplay.yellow { background: var(--yellow-bg); }
+        #timerDisplay.yellow .timer-digits { color: var(--yellow); }
+        #timerDisplay.red { background: var(--red-bg); }
+        #timerDisplay.red .timer-digits { color: var(--red); }
+
+        .empty-state { text-align: center; color: var(--subtext); padding: 28px 0; font-size: 15px; }
+    </style>
+</head>
+<body onload="init()">
+
+<!-- MODAL -->
+<div id="modal">
+    <div class="modal-box">
+        <h2 id="modalTitle"></h2>
+        <div class="modal-body" id="modalBody"></div>
+        <div class="modal-btns">
+            <button id="modalCancel" class="btn btn-secondary">Cancel</button>
+            <button id="modalConfirm" class="btn btn-primary">OK</button>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════ MENU ══════════════ -->
+<div id="menu" class="screen active">
+    <div class="header">
+        <div class="header-row">
+            <div>
+                <h1>Meeting Tools</h1>
+                <div class="sub">Toastmasters</div>
+            </div>
+            <div class="settings-btn" onclick="showScreen('settings')">⚙</div>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <div id="tabTimer" class="tab active" onclick="switchMode('timer')">Timer</div>
+        <div id="tabCounter" class="tab" onclick="switchMode('counter')">Ah-Counter</div>
+    </div>
+
+    <div id="timerMenu" class="scroll">
+        <div class="menu-card" onclick="showScreen('setup')">
+            <div><h3>New Timer</h3><p>Select speaker &amp; start</p></div>
+            <div class="menu-icon">⏱</div>
+        </div>
+        <div class="menu-card" onclick="showScreen('report')">
+            <div><h3>Meeting Report</h3><p>View &amp; copy session log</p></div>
+            <div class="menu-icon">📋</div>
+        </div>
+    </div>
+
+    <div id="counterMenu" class="scroll" style="display:none;">
+        <div class="menu-card" onclick="showScreen('setup')">
+            <div><h3>Start Tracking</h3><p>Count filler words</p></div>
+            <div class="menu-icon">✍</div>
+        </div>
+        <div class="menu-card" onclick="showScreen('report')">
+            <div><h3>Meeting Report</h3><p>View &amp; copy session log</p></div>
+            <div class="menu-icon">📋</div>
+        </div>
+    </div>
+
+    <div class="credit">
+        <p>Southern Dutchess Toastmasters</p>
+        <div class="version" id="versionLabel">Version 1.0.0</div>
+    </div>
+</div>
+
+<!-- ══════════════ SETUP ══════════════ -->
+<div id="setup" class="screen">
+    <div class="header"><h1 id="setupTitle">Setup</h1></div>
+    <div class="scroll">
+        <div class="name-row">
+            <input type="text" id="nameInput" placeholder="SPEAKER NAME" oninput="handleNameInput(this)" style="text-transform:uppercase;">
+            <button class="btn btn-primary btn-small" onclick="saveSpeaker()">Add</button>
+        </div>
+        <div id="speakerList" class="speaker-list"></div>
+        <div id="roleGrid" class="role-grid"></div>
+    </div>
+    <div class="btn-row">
+        <button class="btn btn-secondary" onclick="showScreen('menu')">Cancel</button>
+        <button class="btn btn-primary" onclick="handleStart()">START</button>
+    </div>
+</div>
+
+<!-- ══════════════ TIMER DISPLAY ══════════════ -->
+<div id="timerDisplay" class="screen">
+    <div class="timer-speaker" id="timerSpeaker">Speaker</div>
+    <div class="timer-role" id="timerRole">Role</div>
+    <div class="timer-digits" id="timerDigits">00:00</div>
+    <div class="timer-status" id="timerStatus">TIMING</div>
+    <div class="btn-row">
+        <button class="btn btn-secondary" id="pauseBtn" onclick="togglePause()">PAUSE</button>
+        <button class="btn btn-green" onclick="commitAndExit()">COMMIT &amp; EXIT</button>
+    </div>
+</div>
+
+<!-- ══════════════ AH COUNTER DISPLAY ══════════════ -->
+<div id="counterDisplay" class="screen">
+    <div class="header">
+        <h1 id="counterName">Name</h1>
+        <div class="sub" id="counterRole">Role</div>
+    </div>
+    <div class="scroll">
+        <div id="tallyGrid" class="tally-grid"></div>
+    </div>
+    <div class="btn-row">
+        <button class="btn btn-secondary" onclick="showScreen('menu')">Back</button>
+        <button class="btn btn-green" onclick="saveCounterSession()">SAVE RESULTS</button>
+    </div>
+</div>
+
+<!-- ══════════════ REPORT ══════════════ -->
+<div id="report" class="screen">
+    <div class="header"><h1>Report</h1></div>
+    <div class="scroll" style="display:flex;flex-direction:column;">
+        <div id="reportBox" class="report-box"></div>
+    </div>
+    <div class="btn-row">
+        <button class="btn btn-secondary" onclick="copyReport()">Copy</button>
+        <button class="btn btn-secondary" onclick="shareReport()">Share</button>
+        <button class="btn btn-primary" onclick="showScreen('menu')">Done</button>
+    </div>
+</div>
+
+<!-- ══════════════ SETTINGS ══════════════ -->
+<div id="settings" class="screen">
+    <div class="header"><h1>Settings</h1></div>
+    <div class="scroll">
+        <div class="settings-card">
+            <div class="settings-row">
+                <div><h4>Markdown Export</h4><p>Format for Slack / email</p></div>
+                <label class="switch"><input type="checkbox" id="mdToggle" onchange="saveSettings()"><span class="slider"></span></label>
+            </div>
+        </div>
+        <div class="settings-card">
+            <div class="settings-row" onclick="exportData()" style="cursor:pointer;">
+                <div><h4>Backup Data</h4><p>Export roster &amp; settings to JSON</p></div>
+                <span style="font-size:24px;">⤓</span>
+            </div>
+            <div class="settings-row" onclick="document.getElementById('importFile').click()" style="cursor:pointer;">
+                <div><h4>Restore Data</h4><p>Import from JSON backup</p></div>
+                <span style="font-size:24px;">⤒</span>
+            </div>
+        </div>
+        <div class="settings-card">
+            <div class="settings-row" onclick="askClearLogs()" style="cursor:pointer;background:#FFF5F5;">
+                <div><h4 style="color:var(--red);">Clear Meeting Data</h4><p>Reset all logs for next meeting</p></div>
+                <span style="font-size:24px;">⚠</span>
+            </div>
+        </div>
+        <input type="file" id="importFile" style="display:none" accept=".json" onchange="handleImport(this)">
+    </div>
+    <div class="btn-row">
+        <button class="btn btn-primary" onclick="showScreen('menu')">Done</button>
+    </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+//  TOASTMASTER MEETING APP  v1.0.0
+// ══════════════════════════════════════════
+
+const KEY_SPEAKERS = 'tm_speakers';
+const KEY_FILLERS  = 'tm_fillers';
+const KEY_LOGS     = 'tm_logs';
+const KEY_MD       = 'tm_md';
+
+const DEFAULT_FILLERS = ['AH','UH','UM','ER','SO','LIKE','YOU KNOW'];
+
+const TIMER_PRESETS = [
+    { label:'TABLE TOPICS',  sub:'1-2m',  g:60,  y:90,  r:120 },
+    { label:'EVALUATION',    sub:'2-3m',  g:120, y:150, r:180 },
+    { label:'ICE BREAKER',   sub:'4-6m',  g:240, y:300, r:360 },
+    { label:'SPEECH',        sub:'5-7m',  g:300, y:360, r:420 },
+];
+
+const COUNTER_ROLES = [
+    'AH COUNTER','GRAMMARIAN','SPEAKER','EVALUATOR',
+    'TABLE TOPICS','TOASTMASTER','TIMER','OTHER'
+];
+
+let currentMode    = 'timer';
+let selectedLabel  = '';
+let lims           = { g:0, y:0, r:0 };
+let allSpeakers    = JSON.parse(localStorage.getItem(KEY_SPEAKERS) || '[]');
+let fillerList     = JSON.parse(localStorage.getItem(KEY_FILLERS)  || 'null') || [...DEFAULT_FILLERS];
+let currentSpeaker = '';
+let currentTally   = {};
+let timerIv        = null;
+let timerStart     = 0;
+let timerElapsed   = 0;
+let timerPaused    = false;
+
+// ── INIT ──────────────────────────────────
+function init() {
+    document.getElementById('mdToggle').checked = localStorage.getItem(KEY_MD) === 'true';
+    document.getElementById('versionLabel').innerText = 'Version 1.0.0';
+    refreshSpeakerList();
+}
+
+// ── SCREENS ───────────────────────────────
+function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    if (id === 'setup') {
+        document.getElementById('setupTitle').innerText = currentMode === 'timer' ? 'Timer Setup' : 'Counter Setup';
+        document.getElementById('nameInput').value = '';
+        refreshSpeakerList();
+        renderRoleGrid();
+    }
+    if (id === 'report') renderReport();
+}
+
+// ── MODE SWITCH ───────────────────────────
+function switchMode(m) {
+    currentMode = m;
+    selectedLabel = '';
+    document.getElementById('tabTimer').classList.toggle('active', m === 'timer');
+    document.getElementById('tabCounter').classList.toggle('active', m === 'counter');
+    document.getElementById('timerMenu').style.display   = m === 'timer'   ? 'flex' : 'none';
+    document.getElementById('counterMenu').style.display = m === 'counter' ? 'flex' : 'none';
+    // Fix: timerMenu/counterMenu need flex direction
+    if (m === 'timer')   document.getElementById('timerMenu').style.flexDirection   = 'column';
+    if (m === 'counter') document.getElementById('counterMenu').style.flexDirection = 'column';
+}
+
+// ── ROSTER ────────────────────────────────
+function refreshSpeakerList() {
+    const area = document.getElementById('speakerList');
+    if (!area) return;
+    if (!allSpeakers.length) {
+        area.innerHTML = '<div class="empty-state">No speakers yet — type a name above</div>';
+        return;
+    }
+    const filter = (document.getElementById('nameInput') || {}).value || '';
+    const filtered = filter
+        ? allSpeakers.filter(n => n.includes(filter.toUpperCase()))
+        : allSpeakers;
+    area.innerHTML = filtered.map(n =>
+        `<div class="speaker-item">
+            <span class="speaker-name" onclick="selectSpeaker('${n}')">${n}</span>
+            <span class="speaker-del" onclick="deleteSpeaker('${n}')">✕</span>
+        </div>`
+    ).join('');
+}
+
+function handleNameInput(el) {
+    el.value = el.value.toUpperCase();
+    refreshSpeakerList();
+}
+
+function selectSpeaker(n) {
+    document.getElementById('nameInput').value = n;
+    refreshSpeakerList();
+}
+
+function saveSpeaker() {
+    const n = document.getElementById('nameInput').value.trim().toUpperCase();
+    if (n && !allSpeakers.includes(n)) {
+        allSpeakers.push(n);
+        allSpeakers.sort();
+        localStorage.setItem(KEY_SPEAKERS, JSON.stringify(allSpeakers));
+    }
+    refreshSpeakerList();
+}
+
+function deleteSpeaker(n) {
+    openModal('Remove Speaker?', `Remove ${n} from the roster?`, () => {
+        allSpeakers = allSpeakers.filter(s => s !== n);
+        localStorage.setItem(KEY_SPEAKERS, JSON.stringify(allSpeakers));
+        refreshSpeakerList();
+    });
+}
+
+// ── ROLE GRID ─────────────────────────────
+function renderRoleGrid() {
+    const grid = document.getElementById('roleGrid');
+    grid.innerHTML = '';
+    if (currentMode === 'timer') {
+        TIMER_PRESETS.forEach(p => {
+            const d = document.createElement('div');
+            d.className = 'role-card';
+            d.innerHTML = `<h4>${p.label}</h4><p>${p.sub}</p>`;
+            d.onclick = () => {
+                document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+                d.classList.add('selected');
+                selectedLabel = p.label;
+                lims = { g: p.g, y: p.y, r: p.r };
+            };
+            grid.appendChild(d);
+        });
+        // Custom card
+        const sc = JSON.parse(localStorage.getItem('tm_custom') || '{"g":5,"y":6,"r":7}');
+        const cd = document.createElement('div');
+        cd.className = 'role-card';
+        cd.style.gridColumn = 'span 2';
+        cd.innerHTML = `<h4>CUSTOM</h4><p id="customLabel">${sc.g}-${sc.r}m</p>`;
+        cd.onclick = () => askCustomTime(cd);
+        grid.appendChild(cd);
+    } else {
+        COUNTER_ROLES.forEach(r => {
+            const d = document.createElement('div');
+            d.className = 'role-card';
+            d.innerHTML = `<h4>${r}</h4>`;
+            d.onclick = () => {
+                document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+                d.classList.add('selected');
+                selectedLabel = r;
+            };
+            grid.appendChild(d);
+        });
+    }
+}
+
+function askCustomTime(el) {
+    const sc = JSON.parse(localStorage.getItem('tm_custom') || '{"g":5,"y":6,"r":7}');
+    openModal('Custom Thresholds',
+        `<label style="display:block;text-align:left;font-weight:700;margin-bottom:4px;">Green (min min):</label>
+        <input type="number" id="cg" value="${sc.g}" style="margin-bottom:10px;">
+        <label style="display:block;text-align:left;font-weight:700;margin-bottom:4px;">Yellow (target min):</label>
+        <input type="number" id="cy" value="${sc.y}" style="margin-bottom:10px;">
+        <label style="display:block;text-align:left;font-weight:700;margin-bottom:4px;">Red (max min):</label>
+        <input type="number" id="cr" value="${sc.r}">`,
+        () => {
+            const g = +document.getElementById('cg').value;
+            const y = +document.getElementById('cy').value;
+            const r = +document.getElementById('cr').value;
+            localStorage.setItem('tm_custom', JSON.stringify({g,y,r}));
+            document.getElementById('customLabel').innerText = `${g}-${r}m`;
+            document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedLabel = 'CUSTOM';
+            lims = { g: g*60, y: y*60, r: r*60 };
+        }
+    );
+}
+
+// ── START ─────────────────────────────────
+function handleStart() {
+    const n = document.getElementById('nameInput').value.trim().toUpperCase();
+    if (!n) { openModal('Name Required', 'Please enter a speaker name.', ()=>{}); return; }
+    if (!selectedLabel) { openModal('Role Required', 'Please select a role or preset.', ()=>{}); return; }
+    currentSpeaker = n;
+    if (currentMode === 'timer') {
+        startTimer();
+    } else {
+        startCounter();
+    }
+}
+
+// ── TIMER ─────────────────────────────────
+function startTimer() {
+    timerElapsed = 0;
+    timerPaused = false;
+    document.getElementById('timerSpeaker').innerText = currentSpeaker;
+    document.getElementById('timerRole').innerText = selectedLabel;
+    document.getElementById('timerDigits').innerText = '00:00';
+    document.getElementById('timerStatus').innerText = 'TIMING';
+    document.getElementById('pauseBtn').innerText = 'PAUSE';
+    const disp = document.getElementById('timerDisplay');
+    disp.className = 'screen active';
+    showScreen('timerDisplay');
+    timerStart = Date.now();
+    clearInterval(timerIv);
+    timerIv = setInterval(tickTimer, 250);
+}
+
+function tickTimer() {
+    timerElapsed = Math.floor((Date.now() - timerStart) / 1000);
+    const m = Math.floor(timerElapsed/60).toString().padStart(2,'0');
+    const s = (timerElapsed%60).toString().padStart(2,'0');
+    document.getElementById('timerDigits').innerText = `${m}:${s}`;
+    const disp = document.getElementById('timerDisplay');
+    disp.classList.remove('green','yellow','red');
+    if      (timerElapsed >= lims.r) { disp.classList.add('red');    document.getElementById('timerStatus').innerText = 'OVER TIME'; }
+    else if (timerElapsed >= lims.y) { disp.classList.add('yellow'); document.getElementById('timerStatus').innerText = 'AT TARGET'; }
+    else if (timerElapsed >= lims.g) { disp.classList.add('green');  document.getElementById('timerStatus').innerText = 'ON TIME'; }
+    else                             {                               document.getElementById('timerStatus').innerText = 'TIMING'; }
+}
+
+function togglePause() {
+    if (timerPaused) {
+        timerStart = Date.now() - (timerElapsed * 1000);
+        timerIv = setInterval(tickTimer, 250);
+        timerPaused = false;
+        document.getElementById('pauseBtn').innerText = 'PAUSE';
+        document.getElementById('timerStatus').innerText = 'TIMING';
+    } else {
+        clearInterval(timerIv);
+        timerPaused = true;
+        document.getElementById('pauseBtn').innerText = 'RESUME';
+        document.getElementById('timerStatus').innerText = 'PAUSED';
+    }
+}
+
+function commitAndExit() {
+    clearInterval(timerIv);
+    if (timerElapsed > 0) {
+        const m = Math.floor(timerElapsed/60).toString().padStart(2,'0');
+        const s = (timerElapsed%60).toString().padStart(2,'0');
+        const logs = JSON.parse(localStorage.getItem(KEY_LOGS) || '[]');
+        logs.push(`${currentSpeaker} | ${selectedLabel} | ${m}:${s}`);
+        localStorage.setItem(KEY_LOGS, JSON.stringify(logs));
+    }
+    timerElapsed = 0;
+    document.getElementById('timerDisplay').className = 'screen';
+    showScreen('menu');
+}
+
+// ── AH COUNTER ────────────────────────────
+function startCounter() {
+    currentTally = {};
+    fillerList.forEach(f => currentTally[f] = 0);
+    document.getElementById('counterName').innerText = currentSpeaker;
+    document.getElementById('counterRole').innerText = selectedLabel;
+    renderTally();
+    showScreen('counterDisplay');
+}
+
+function renderTally() {
+    const grid = document.getElementById('tallyGrid');
+    grid.innerHTML = fillerList.map(f =>
+        `<div class="tally-card" onclick="incTally('${f}')">
+            <div class="tally-del" onclick="event.stopPropagation();delFiller('${f}')">✕</div>
+            <div class="count" id="ct-${f.replace(/ /g,'_')}">${currentTally[f]}</div>
+            <div class="label">${f}</div>
+            <div class="tally-minus" onclick="event.stopPropagation();decTally('${f}')">−</div>
+        </div>`
+    ).join('');
+}
+
+function incTally(f) {
+    currentTally[f]++;
+    document.getElementById(`ct-${f.replace(/ /g,'_')}`).innerText = currentTally[f];
+}
+
+function decTally(f) {
+    if (currentTally[f] > 0) currentTally[f]--;
+    document.getElementById(`ct-${f.replace(/ /g,'_')}`).innerText = currentTally[f];
+}
+
+function delFiller(f) {
+    openModal('Remove Filler?', `Remove "${f}" from tracking?`, () => {
+        fillerList = fillerList.filter(w => w !== f);
+        localStorage.setItem(KEY_FILLERS, JSON.stringify(fillerList));
+        delete currentTally[f];
+        renderTally();
+    });
+}
+
+function saveCounterSession() {
+    const logs = JSON.parse(localStorage.getItem(KEY_LOGS) || '[]');
+    const parts = [];
+    for (const f in currentTally) if (currentTally[f] > 0) parts.push(`${f}: ${currentTally[f]}`);
+    const result = parts.length ? parts.join(', ') : '0 Fillers';
+    const existing = logs.findIndex(l => l.startsWith(`${currentSpeaker} | ${selectedLabel}`));
+    if (existing !== -1) {
+        logs[existing] = `${currentSpeaker} | ${selectedLabel} | ${result}`;
+    } else {
+        logs.push(`${currentSpeaker} | ${selectedLabel} | ${result}`);
+    }
+    localStorage.setItem(KEY_LOGS, JSON.stringify(logs));
+    openModal('Saved', 'Results saved to meeting report.', () => showScreen('menu'));
+}
+
+// ── REPORT ────────────────────────────────
+function renderReport() {
+    const logs = JSON.parse(localStorage.getItem(KEY_LOGS) || '[]');
+    const md = localStorage.getItem(KEY_MD) === 'true';
+    const date = new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+    let out = md
+        ? `# Meeting Report\n_${date}_\n\n| Name | Role | Result |\n| :--- | :--- | :--- |\n`
+        : `MEETING REPORT\n${date}\n${'─'.repeat(30)}\n\n`;
+    if (!logs.length) {
+        out += 'No sessions recorded yet.';
+    } else if (md) {
+        logs.forEach(l => {
+            const p = l.split(' | ');
+            out += `| ${p[0]} | ${p[1]} | ${p[2] || ''} |\n`;
+        });
+    } else {
+        logs.forEach(l => out += `• ${l}\n`);
+    }
+    document.getElementById('reportBox').innerText = out;
+}
+
+function copyReport() {
+    const text = document.getElementById('reportBox').innerText;
+    navigator.clipboard.writeText(text).then(() => openModal('Copied', 'Report copied to clipboard.', ()=>{}));
+}
+
+function shareReport() {
+    const text = document.getElementById('reportBox').innerText;
+    if (navigator.share) navigator.share({ title: 'Meeting Report', text });
+    else copyReport();
+}
+
+// ── SETTINGS ─────────────────────────────
+function saveSettings() {
+    localStorage.setItem(KEY_MD, document.getElementById('mdToggle').checked);
+}
+
+function exportData() {
+    const d = {
+        speakers: allSpeakers,
+        fillers: fillerList,
+        logs: JSON.parse(localStorage.getItem(KEY_LOGS) || '[]')
+    };
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(d, null, 2)], { type: 'application/json' }));
+    a.download = `tm-backup-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+}
+
+function handleImport(input) {
+    const r = new FileReader();
+    r.onload = e => {
+        try {
+            const d = JSON.parse(e.target.result);
+            if (d.speakers) { allSpeakers = d.speakers; localStorage.setItem(KEY_SPEAKERS, JSON.stringify(d.speakers)); }
+            if (d.fillers)  { fillerList  = d.fillers;  localStorage.setItem(KEY_FILLERS,  JSON.stringify(d.fillers)); }
+            if (d.logs)     { localStorage.setItem(KEY_LOGS, JSON.stringify(d.logs)); }
+            openModal('Restored', 'Data imported successfully.', () => location.reload());
+        } catch(err) { openModal('Error', 'Could not read that file.', ()=>{}); }
+    };
+    r.readAsText(input.files[0]);
+}
+
+function askClearLogs() {
+    openModal('Clear Meeting Data?', 'This resets all session logs. Your speaker roster is kept.', () => {
+        localStorage.removeItem(KEY_LOGS);
+        openModal('Cleared', 'Meeting data has been reset.', ()=>{});
+    });
+}
+
+// ── MODAL ─────────────────────────────────
+function openModal(title, body, onConfirm, cancelLabel, confirmLabel) {
+    document.getElementById('modalTitle').innerText = title;
+    document.getElementById('modalBody').innerHTML = body;
+    const m = document.getElementById('modal');
+    m.style.display = 'flex';
+    const cancelBtn  = document.getElementById('modalCancel');
+    const confirmBtn = document.getElementById('modalConfirm');
+    cancelBtn.innerText  = cancelLabel  || 'Cancel';
+    confirmBtn.innerText = confirmLabel || 'OK';
+    cancelBtn.style.display  = cancelLabel  === null ? 'none' : 'block';
+    confirmBtn.onclick = () => { onConfirm(); m.style.display = 'none'; };
+    cancelBtn.onclick  = () => { m.style.display = 'none'; };
+}
+
+// ── SERVICE WORKER ────────────────────────
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
