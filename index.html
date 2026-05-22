@@ -426,13 +426,25 @@
         .credit .version { font-size: 11px; opacity: 0.4; margin-top: 4px; }
 
         /* ── TIMER BG STATES ── */
-        #timerDisplay.green { background: var(--green-bg); }
-        #timerDisplay.green .timer-digits { color: var(--green); }
-        #timerDisplay.yellow { background: var(--yellow-bg); }
-        #timerDisplay.yellow .timer-digits { color: var(--yellow); }
-        #timerDisplay.red { background: var(--red-bg); }
-        #timerDisplay.red .timer-digits { color: var(--red); }
+        #timerDisplay.green { background: #34C759; }
+        #timerDisplay.green .timer-digits { color: white; }
+        #timerDisplay.green .timer-speaker,
+        #timerDisplay.green .timer-role,
+        #timerDisplay.green .timer-status { color: rgba(255,255,255,0.85); }
+        #timerDisplay.yellow { background: #FFCC00; }
+        #timerDisplay.yellow .timer-digits { color: #1A1A00; }
+        #timerDisplay.yellow .timer-speaker,
+        #timerDisplay.yellow .timer-role,
+        #timerDisplay.yellow .timer-status { color: rgba(0,0,0,0.6); }
+        #timerDisplay.red { background: #FF3B30; }
+        #timerDisplay.red .timer-digits { color: white; }
+        #timerDisplay.red .timer-speaker,
+        #timerDisplay.red .timer-role,
+        #timerDisplay.red .timer-status { color: rgba(255,255,255,0.85); }
 
+        #timerDisplay.green .btn-secondary,
+        #timerDisplay.red .btn-secondary { background: rgba(255,255,255,0.3); color: white; border: none; }
+        #timerDisplay.yellow .btn-secondary { background: rgba(0,0,0,0.15); color: #1A1A00; border: none; }
         .empty-state { text-align: center; color: var(--subtext); padding: 28px 0; font-size: 15px; }
     </style>
 </head>
