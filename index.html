@@ -516,7 +516,10 @@
     <div class="header"><h1 id="setupTitle">Setup</h1></div>
     <div class="scroll">
         <div class="name-row">
-            <input type="text" id="nameInput" placeholder="SPEAKER NAME" oninput="handleNameInput(this)" style="text-transform:uppercase;">
+            <div style="position:relative;flex:1;">
+                <input type="text" id="nameInput" placeholder="SPEAKER NAME" oninput="handleNameInput(this)" style="text-transform:uppercase;width:100%;padding-right:36px;">
+                <span onclick="clearNameInput()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:18px;color:var(--subtext);cursor:pointer;line-height:1;">✕</span>
+            </div>
             <button class="btn btn-primary btn-small" onclick="saveSpeaker()">Add</button>
         </div>
         <div id="speakerList" class="speaker-list"></div>
@@ -970,16 +973,32 @@ function exportData() {
     a.click();
 }
 
+function clearNameInput() {
+    const el = document.getElementById('nameInput');
+    el.value = '';
+    refreshSpeakerList();
+}
+
 function handleImport(input) {
     const r = new FileReader();
     r.onload = e => {
         try {
             const d = JSON.parse(e.target.result);
-            if (d.speakers) { allSpeakers = d.speakers; localStorage.setItem(KEY_SPEAKERS, JSON.stringify(d.speakers)); }
-            if (d.fillers)  { fillerList  = d.fillers;  localStorage.setItem(KEY_FILLERS,  JSON.stringify(d.fillers)); }
-            if (d.logs)     { localStorage.setItem(KEY_LOGS, JSON.stringify(d.logs)); }
-            openModal('Restored', 'Data imported successfully.', () => location.reload());
-        } catch(err) { openModal('Error', 'Could not read that file.', ()=>{}); }
+            let msg = '';
+            if (d.speakers && Array.isArray(d.speakers)) {
+                allSpeakers = d.speakers;
+                localStorage.setItem(KEY_SPEAKERS, JSON.stringify(d.speakers));
+                msg += `${d.speakers.length} speaker${d.speakers.length !== 1 ? 's' : ''} restored. `;
+            }
+            if (d.fillers && Array.isArray(d.fillers)) {
+                fillerList = d.fillers;
+                localStorage.setItem(KEY_FILLERS, JSON.stringify(d.fillers));
+            }
+            if (d.logs && Array.isArray(d.logs)) {
+                localStorage.setItem(KEY_LOGS, JSON.stringify(d.logs));
+            }
+            openModal('Restored', msg || 'Data imported successfully.', () => location.reload());
+        } catch(err) { openModal('Error', 'Could not read that file. Make sure it is a valid backup.', ()=>{}); }
     };
     r.readAsText(input.files[0]);
 }
