@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Toastmaster Meeting App — Manual</title>
+    <style>
+        :root {
+            --bg: #F5F4F0; --card: #FFFFFF; --accent: #C84B2F;
+            --text: #1A1A18; --subtext: #6B6B65; --border: #E2E1DC;
+            --gold: #B5830A; --green: #2D6A4F;
+        }
+        body {
+            margin: 0; background: var(--bg); color: var(--text);
+            font-family: -apple-system, system-ui, sans-serif;
+            line-height: 1.6; padding: 32px 20px 60px;
+        }
+        .content { max-width: 720px; margin: 0 auto; }
+        .btn-back {
+            display: inline-block; text-decoration: none; color: var(--accent);
+            font-weight: 700; margin-bottom: 24px; font-size: 17px;
+        }
+        h1 { font-size: 36px; font-weight: 800; margin-bottom: 6px; letter-spacing: -1px; }
+        .version { font-size: 13px; color: var(--subtext); margin-bottom: 32px; }
+        h2 {
+            font-size: 22px; font-weight: 700; margin-top: 40px; margin-bottom: 8px;
+            color: var(--accent); border-bottom: 2px solid var(--border); padding-bottom: 8px;
+        }
+        h3 { font-size: 18px; font-weight: 700; margin-top: 24px; color: var(--gold); }
+        p { font-size: 16px; margin: 12px 0; }
+        ul, ol { padding-left: 22px; }
+        li { font-size: 16px; margin-bottom: 8px; }
+        code {
+            background: #ECEAE4; padding: 2px 7px; border-radius: 6px;
+            font-family: monospace; font-size: 14px; font-weight: 600;
+        }
+        .tip {
+            background: #FFFBF0; border-left: 4px solid var(--gold);
+            padding: 14px 16px; border-radius: 8px; margin: 16px 0;
+            font-size: 15px;
+        }
+        .tip strong { color: var(--gold); }
+        .step {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 14px 18px; margin: 10px 0;
+            font-size: 15px;
+        }
+        .step strong { display: block; font-size: 16px; margin-bottom: 4px; }
+        table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 15px; }
+        th { background: var(--bg); padding: 10px 14px; text-align: left; font-weight: 700; border-bottom: 2px solid var(--border); }
+        td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+        .color-green { background: #34C759; color: white; border-radius: 6px; padding: 2px 10px; font-weight: 700; font-size: 13px; }
+        .color-yellow { background: #FFCC00; color: #1A1A00; border-radius: 6px; padding: 2px 10px; font-weight: 700; font-size: 13px; }
+        .color-red { background: #FF3B30; color: white; border-radius: 6px; padding: 2px 10px; font-weight: 700; font-size: 13px; }
+        .footer { text-align: center; margin-top: 60px; opacity: 0.5; font-size: 13px; }
+    </style>
+</head>
+<body>
+<div class="content">
+
+    <a href="index.html" class="btn-back">← Back to App</a>
+
+    <h1>Toastmaster Meeting App</h1>
+    <div class="version">User Manual · Version 1.0 · Southern Dutchess Toastmasters</div>
+
+    <p>This app helps you run two of the most important roles at a Toastmasters meeting — <strong>Timer</strong> and <strong>Ah-Counter</strong> — from your phone or tablet. No login, no internet required, no fuss.</p>
+
+    <h2>1. Getting Started</h2>
+    <p>Open the app in any browser and you'll see two tabs at the top: <strong>Timer</strong> and <strong>Ah-Counter</strong>. Tap the tab for the role you're filling today.</p>
+
+    <div class="tip"><strong>Tip:</strong> On iPhone, tap Share → Add to Home Screen to install the app as a shortcut. It will open full-screen like a native app.</div>
+
+    <h2>2. Timer</h2>
+    <p>The Timer tracks how long each speaker has been talking and signals when they hit their green, yellow, and red light thresholds.</p>
+
+    <h3>Starting a Timer</h3>
+    <ol>
+        <li>Tap <strong>New Timer</strong> from the Timer menu</li>
+        <li>Type the speaker's name or tap their name from the roster list below</li>
+        <li>Tap the role preset that matches what they're doing</li>
+        <li>Tap <strong>START</strong></li>
+    </ol>
+
+    <h3>Color Cues</h3>
+    <p>The screen background changes color as the speaker reaches each threshold:</p>
+    <table>
+        <tr><th>Color</th><th>Meaning</th><th>Presets</th></tr>
+        <tr><td><span class="color-green">GREEN</span></td><td>Minimum time reached — speaker is in the zone</td><td>See table below</td></tr>
+        <tr><td><span class="color-yellow">YELLOW</span></td><td>Target time reached — approaching the end</td><td></td></tr>
+        <tr><td><span class="color-red">RED</span></td><td>Maximum time — speaker should wrap up</td><td></td></tr>
+    </table>
+
+    <h3>Time Presets</h3>
+    <table>
+        <tr><th>Role</th><th>Green</th><th>Yellow</th><th>Red</th></tr>
+        <tr><td>Table Topics</td><td>1:00</td><td>1:30</td><td>2:00</td></tr>
+        <tr><td>Evaluation</td><td>2:00</td><td>2:30</td><td>3:00</td></tr>
+        <tr><td>Ice Breaker</td><td>4:00</td><td>5:00</td><td>6:00</td></tr>
+        <tr><td>Speech</td><td>5:00</td><td>6:00</td><td>7:00</td></tr>
+        <tr><td>Custom</td><td colspan="3">You set the thresholds in minutes</td></tr>
+    </table>
+
+    <h3>During Timing</h3>
+    <ul>
+        <li><strong>PAUSE</strong> — freezes the clock. Tap <strong>RESUME</strong> to continue.</li>
+        <li><strong>COMMIT &amp; EXIT</strong> — saves the final time to the meeting report and returns to the menu.</li>
+    </ul>
+
+    <div class="tip"><strong>Tip:</strong> If you tap Back without committing, the session is not saved. Always tap Commit &amp; Exit to record the time.</div>
+
+    <h2>3. Ah-Counter</h2>
+    <p>The Ah-Counter tracks filler words used by each speaker — AH, UH, UM, ER, SO, LIKE, YOU KNOW, and the Word of the Day.</p>
+
+    <h3>Setting the Word of the Day</h3>
+    <p>Before tracking, tap <strong>Word of the Day</strong> from the Ah-Counter menu and enter today's word. It will appear at the top of the tally grid with a gold highlight so you can easily track it separately.</p>
+
+    <h3>Starting a Session</h3>
+    <ol>
+        <li>Tap <strong>Start Tracking</strong> from the Ah-Counter menu</li>
+        <li>Type or select the speaker's name</li>
+        <li>Select their role (Ah Counter, Speaker, Grammarian, etc.)</li>
+        <li>Tap <strong>START</strong></li>
+    </ol>
+
+    <h3>Counting Filler Words</h3>
+    <ul>
+        <li><strong>Tap any card</strong> to add 1 to that word's count</li>
+        <li><strong>Tap the − button</strong> (bottom right of card) to subtract 1 if you tapped by mistake</li>
+        <li><strong>Tap the ✕ button</strong> (top right of card) to remove a filler word from this session entirely</li>
+        <li><strong>Tap + Add Filler Word</strong> at the bottom to add a word on the fly during a session</li>
+    </ul>
+
+    <h3>Saving Results</h3>
+    <p>When the speaker is done, tap <strong>SAVE RESULTS</strong>. The counts are added to the meeting report. If the same speaker speaks again later in the meeting, their new counts will be <em>added</em> to their existing totals — not overwritten.</p>
+
+    <h2>4. Meeting Report</h2>
+    <p>The Meeting Report collects all timed sessions and filler word counts in one place. Tap <strong>Meeting Report</strong> from either menu to view it.</p>
+    <ul>
+        <li><strong>Copy</strong> — copies the report text to your clipboard</li>
+        <li><strong>Share</strong> — opens the share sheet on mobile to send via Messages, email, or any app</li>
+        <li><strong>Markdown Export</strong> — turn this on in Settings to format the report as a table for Slack or email</li>
+    </ul>
+
+    <h2>5. Speaker Roster</h2>
+    <p>The app remembers your club's regular speakers. The first time you type a name and tap <strong>Add</strong>, it's saved to the roster permanently. Next time, just type the first few letters and tap their name from the filtered list.</p>
+    <ul>
+        <li>Tap the <strong>✕</strong> next to any name to remove them from the roster</li>
+        <li>Tap the <strong>✕</strong> inside the search box to clear what you've typed</li>
+    </ul>
+
+    <h2>6. Settings</h2>
+
+    <h3>Markdown Export</h3>
+    <p>When enabled, the Meeting Report formats as a Markdown table — perfect for pasting into Slack, email, or Discord. When off, the report is plain text.</p>
+
+    <h3>Backup Data</h3>
+    <p>Exports your speaker roster, filler word list, and meeting logs to a JSON file. Use this to:</p>
+    <ul>
+        <li>Keep a backup before clearing meeting data</li>
+        <li>Share your roster with another device</li>
+        <li>Transfer your setup to a new phone</li>
+    </ul>
+
+    <h3>Restore Data</h3>
+    <p>Import a previously exported JSON backup file. Your roster, filler words, and logs will be restored. The app will reload automatically after a successful import.</p>
+
+    <h3>Clear Meeting Data</h3>
+    <p>Resets all session logs from the current meeting. Your speaker roster and filler word list are <strong>not</strong> affected — only the timing and filler count records are cleared. Use this at the start of each new meeting.</p>
+
+    <h2>7. Filler Word Management</h2>
+    <p>The default filler words are AH, UH, UM, ER, SO, LIKE, and YOU KNOW. You can customize this list:</p>
+    <ul>
+        <li><strong>Add during a session</strong> — tap + Add Filler Word at the bottom of the tally grid</li>
+        <li><strong>Remove during a session</strong> — tap the ✕ on any tally card</li>
+        <li>Changes to the filler list are saved permanently for future sessions</li>
+    </ul>
+
+    <div class="tip"><strong>Tip:</strong> The Word of the Day is tracked separately and changes each meeting. It does not permanently replace your filler word list.</div>
+
+    <div class="footer">
+        <p>Toastmaster Meeting App · Southern Dutchess Toastmasters</p>
+        <p>Built with AI assistance using vibe coding</p>
+    </div>
+
+</div>
+</body>
+</html>
