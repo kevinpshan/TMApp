@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Speech Recognition Test</title>
+    <style>
+        :root {
+            --bg: #F5F4F0; --card: #FFFFFF; --accent: #C84B2F;
+            --text: #1A1A18; --subtext: #6B6B65; --border: #E2E1DC;
+            --gold: #B5830A; --green: #2D6A4F; --red: #FF3B30;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, system-ui, sans-serif;
+            background: var(--bg); color: var(--text);
+            padding: 32px 20px; min-height: 100dvh;
+        }
+        h1 { font-size: 28px; font-weight: 800; margin-bottom: 6px; }
+        .sub { font-size: 14px; color: var(--subtext); margin-bottom: 24px; }
+        .status {
+            text-align: center; font-size: 13px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 2px;
+            color: var(--subtext); margin-bottom: 16px;
+        }
+        .status.recording { color: var(--red); }
+        .transcript-box {
+            background: var(--card); border: 1.5px solid var(--border);
+            border-radius: 16px; padding: 20px; min-height: 200px;
+            font-size: 17px; line-height: 1.7; margin-bottom: 20px;
+            white-space: pre-wrap; word-wrap: break-word;
+        }
+        .highlight-filler {
+            background: #FFE5E5; color: var(--red);
+            font-weight: 700; border-radius: 4px; padding: 0 3px;
+            border-bottom: 2px solid var(--red);
+        }
+        .highlight-wod {
+            background: #FFFBF0; color: var(--gold);
+            font-weight: 700; border-radius: 4px; padding: 0 3px;
+            border-bottom: 2px solid var(--gold);
+        }
+        .counts {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 16px; padding: 20px; margin-bottom: 20px;
+        }
+        .counts h3 { font-size: 15px; font-weight: 700; margin-bottom: 12px; color: var(--subtext); text-transform: uppercase; letter-spacing: 1px; }
+        .count-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .count-item {
+            background: var(--bg); border-radius: 10px; padding: 10px;
+            text-align: center;
+        }
+        .count-item .num { font-size: 28px; font-weight: 800; color: var(--accent); }
+        .count-item .word { font-size: 11px; font-weight: 700; color: var(--subtext); text-transform: uppercase; }
+        .btn {
+            width: 100%; padding: 18px; border-radius: 14px;
+            font-size: 18px; font-weight: 700; border: none; cursor: pointer;
+            font-family: inherit; margin-bottom: 10px;
+        }
+        .btn-record { background: var(--red); color: white; }
+        .btn-stop { background: var(--green); color: white; display: none; }
+        .btn-clear { background: #ECEAE4; color: var(--text); }
+        .wod-row {
+            display: flex; gap: 10px; margin-bottom: 16px; align-items: center;
+        }
+        input {
+            flex: 1; padding: 12px 16px; border: 1.5px solid var(--border);
+            border-radius: 12px; font-size: 16px; font-family: inherit;
+            background: var(--card); color: var(--text); text-transform: uppercase;
+        }
+        .note {
+            font-size: 13px; color: var(--subtext); line-height: 1.5;
+            background: var(--card); border-radius: 12px; padding: 14px;
+            border: 1px solid var(--border); margin-bottom: 20px;
+        }
+        .back { display: inline-block; color: var(--accent); font-weight: 700; text-decoration: none; margin-bottom: 20px; font-size: 16px; }
+    </style>
+</head>
+<body>
+
+<a href="index.html" class="back">← Back to App</a>
+<h1>Speech Test Lab</h1>
+<div class="sub">Testing Web Speech API for filler word detection</div>
+
+<div class="note">
+    <strong>How to test:</strong> Enter a Word of the Day (optional), tap Start Recording, speak naturally for 30-60 seconds including some filler words like "um", "uh", "like", "so". Tap Stop and see what was captured and highlighted.
+</div>
+
+<div class="wod-row">
+    <input type="text" id="wodInput" placeholder="WORD OF THE DAY (optional)">
+</div>
+
+<div id="status" class="status">READY</div>
+
+<div id="transcriptBox" class="transcript-box">Your transcript will appear here as you speak...</div>
+
+<div class="counts">
+    <h3>Filler Word Counts</h3>
+    <div id="countGrid" class="count-grid"></div>
+</div>
+
+<button class="btn btn-record" id="recordBtn" onclick="startRecording()">● Start Recording</button>
+<button class="btn btn-stop" id="stopBtn" onclick="stopRecording()">■ Stop Recording</button>
+<button class="btn btn-clear" onclick="clearAll()">Clear</button>
+
+<script>
+const FILLERS = ['UM', 'UH', 'AH', 'ER', 'SO', 'LIKE', 'YOU KNOW', 'BASICALLY', 'ACTUALLY', 'RIGHT'];
+let recognition = null;
+let fullTranscript = '';
+let fillerCounts = {};
+let isRecording = false;
+
+FILLERS.forEach(f => fillerCounts[f] = 0);
+
+function getWod() {
+    return document.getElementById('wodInput').value.trim().toUpperCase();
+}
+
+function initCounts() {
+    FILLERS.forEach(f => fillerCounts[f] = 0);
+    const wod = getWod();
+    if (wod) fillerCounts[wod] = 0;
+    renderCounts();
+}
+
+function renderCounts() {
+    const wod = getWod();
+    const allWords = wod ? [wod, ...FILLERS] : FILLERS;
+    document.getElementById('countGrid').innerHTML = allWords.map(f => `
+        <div class="count-item">
+            <div class="num">${fillerCounts[f] || 0}</div>
+            <div class="word">${f}</div>
+        </div>
+    `).join('');
+}
+
+function highlightText(text) {
+    const wod = getWod();
+    let result = text;
+    // Highlight WOD first
+    if (wod) {
+        const wodRegex = new RegExp(`\\b${wod}\\b`, 'gi');
+        result = result.replace(wodRegex, m => `<span class="highlight-wod">${m}</span>`);
+    }
+    // Highlight fillers
+    FILLERS.forEach(f => {
+        const regex = new RegExp(`\\b${f}\\b`, 'gi');
+        result = result.replace(regex, m => `<span class="highlight-filler">${m}</span>`);
+    });
+    return result;
+}
+
+function countFillers(text) {
+    const wod = getWod();
+    const upper = text.toUpperCase();
+    FILLERS.forEach(f => {
+        const matches = upper.match(new RegExp(`\\b${f}\\b`, 'g'));
+        if (matches) fillerCounts[f] = (fillerCounts[f] || 0) + matches.length;
+    });
+    if (wod) {
+        const matches = upper.match(new RegExp(`\\b${wod}\\b`, 'g'));
+        if (matches) fillerCounts[wod] = (fillerCounts[wod] || 0) + matches.length;
+    }
+    renderCounts();
+}
+
+function startRecording() {
+    if (!('SpeechRecognition' in window) && !('webkitSpeechRecognition' in window)) {
+        alert('Speech recognition is not supported in this browser. Try Safari on iOS or Chrome on desktop.');
+        return;
+    }
+
+    initCounts();
+    fullTranscript = '';
+    document.getElementById('transcriptBox').innerHTML = '<em style="color:var(--subtext)">Listening...</em>';
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    let finalTranscript = '';
+
+    recognition.onresult = (event) => {
+        let interim = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            const transcript = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+                finalTranscript += transcript + ' ';
+                countFillers(transcript);
+            } else {
+                interim += transcript;
+            }
+        }
+        fullTranscript = finalTranscript;
+        const display = finalTranscript + (interim ? `<em style="color:var(--subtext)">${interim}</em>` : '');
+        document.getElementById('transcriptBox').innerHTML = highlightText(display);
+    };
+
+    recognition.onerror = (e) => {
+        document.getElementById('status').innerText = 'ERROR: ' + e.error;
+        document.getElementById('status').className = 'status';
+        stopRecording();
+    };
+
+    recognition.onend = () => {
+        if (isRecording) {
+            // Auto-restart if still supposed to be recording (iOS stops after silence)
+            recognition.start();
+        }
+    };
+
+    recognition.start();
+    isRecording = true;
+
+    document.getElementById('recordBtn').style.display = 'none';
+    document.getElementById('stopBtn').style.display = 'block';
+    document.getElementById('status').innerText = '● RECORDING LIVE...';
+    document.getElementById('status').className = 'status recording';
+}
+
+function stopRecording() {
+    isRecording = false;
+    if (recognition) recognition.stop();
+    document.getElementById('recordBtn').style.display = 'block';
+    document.getElementById('stopBtn').style.display = 'none';
+    document.getElementById('status').innerText = 'DONE — Review results above';
+    document.getElementById('status').className = 'status';
+    // Final highlight of complete transcript
+    if (fullTranscript) {
+        document.getElementById('transcriptBox').innerHTML = highlightText(fullTranscript);
+    }
+}
+
+function clearAll() {
+    fullTranscript = '';
+    initCounts();
+    document.getElementById('transcriptBox').innerHTML = 'Your transcript will appear here as you speak...';
+    document.getElementById('status').innerText = 'READY';
+    document.getElementById('status').className = 'status';
+}
+
+// Init count display
+initCounts();
+</script>
+</body>
+</html>
