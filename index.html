@@ -911,14 +911,32 @@ function delFiller(f) {
 
 function saveCounterSession() {
     const logs = JSON.parse(localStorage.getItem(KEY_LOGS) || '[]');
-    const parts = [];
-    for (const f in currentTally) if (currentTally[f] > 0) parts.push(`${f}: ${currentTally[f]}`);
-    const result = parts.length ? parts.join(', ') : '0 Fillers';
-    const existing = logs.findIndex(l => l.startsWith(`${currentSpeaker} | ${selectedLabel}`));
+    const matchKey = `${currentSpeaker} | ${selectedLabel}`;
+    const existing = logs.findIndex(l => l.startsWith(matchKey));
+
     if (existing !== -1) {
-        logs[existing] = `${currentSpeaker} | ${selectedLabel} | ${result}`;
+        // Merge with existing counts
+        const existingResult = logs[existing].split(' | ')[2] || '';
+        const merged = {};
+        // Parse existing counts
+        if (existingResult !== '0 Fillers') {
+            existingResult.split(', ').forEach(p => {
+                const [word, count] = p.split(': ');
+                if (word) merged[word] = parseInt(count) || 0;
+            });
+        }
+        // Add new counts on top
+        for (const f in currentTally) {
+            if (currentTally[f] > 0) {
+                merged[f] = (merged[f] || 0) + currentTally[f];
+            }
+        }
+        const parts = Object.entries(merged).map(([w, c]) => `${w}: ${c}`);
+        logs[existing] = `${matchKey} | ${parts.length ? parts.join(', ') : '0 Fillers'}`;
     } else {
-        logs.push(`${currentSpeaker} | ${selectedLabel} | ${result}`);
+        const parts = [];
+        for (const f in currentTally) if (currentTally[f] > 0) parts.push(`${f}: ${currentTally[f]}`);
+        logs.push(`${matchKey} | ${parts.length ? parts.join(', ') : '0 Fillers'}`);
     }
     localStorage.setItem(KEY_LOGS, JSON.stringify(logs));
     openModal('Saved', 'Results saved to meeting report.', () => showScreen('menu'));
