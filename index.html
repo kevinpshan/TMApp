@@ -542,6 +542,7 @@
     <div class="timer-digits" id="timerDigits">00:00</div>
     <div class="timer-status" id="timerStatus">TIMING</div>
     <div class="btn-row">
+        <button class="btn btn-secondary" id="cancelTimerBtn" onclick="cancelTimer()">CANCEL</button>
         <button class="btn btn-secondary" id="pauseBtn" onclick="togglePause()">PAUSE</button>
         <button class="btn btn-green" onclick="commitAndExit()">COMMIT &amp; EXIT</button>
     </div>
@@ -846,6 +847,13 @@ function togglePause() {
         document.getElementById('pauseBtn').innerText = 'RESUME';
         document.getElementById('timerStatus').innerText = 'PAUSED';
     }
+}
+
+function cancelTimer() {
+    clearInterval(timerIv);
+    timerElapsed = 0;
+    document.getElementById('timerDisplay').className = 'screen';
+    showScreen('menu');
 }
 
 function commitAndExit() {
