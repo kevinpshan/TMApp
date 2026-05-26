@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Toastmaster Meeting App — What's New</title>
+    <style>
+        :root {
+            --bg: #F5F4F0; --card: #FFFFFF; --accent: #C84B2F;
+            --text: #1A1A18; --subtext: #6B6B65; --border: #E2E1DC;
+            --gold: #B5830A; --green: #2D6A4F;
+        }
+        body {
+            margin: 0; background: var(--bg); color: var(--text);
+            font-family: -apple-system, system-ui, sans-serif;
+            line-height: 1.6; padding: 32px 20px 60px;
+        }
+        .content { max-width: 720px; margin: 0 auto; }
+        .btn-back {
+            display: inline-block; text-decoration: none; color: var(--accent);
+            font-weight: 700; margin-bottom: 24px; font-size: 17px;
+        }
+        h1 { font-size: 36px; font-weight: 800; margin-bottom: 6px; letter-spacing: -1px; }
+        .subtitle { font-size: 15px; color: var(--subtext); margin-bottom: 40px; }
+        .release {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 16px; padding: 24px; margin-bottom: 20px;
+        }
+        .release-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 16px; flex-wrap: wrap; gap: 8px;
+        }
+        .version-num { font-size: 22px; font-weight: 800; }
+        .release-date { font-size: 13px; color: var(--subtext); margin-top: 2px; }
+        .tag {
+            font-size: 12px; font-weight: 700; padding: 4px 12px;
+            border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .tag-current { background: var(--accent); color: white; }
+        .tag-feature { background: #E8F5E9; color: var(--green); }
+        .tag-fix { background: #FFF8E1; color: var(--gold); }
+        ul { padding-left: 20px; margin: 0; }
+        li { font-size: 15px; margin-bottom: 8px; color: var(--text); }
+        li:last-child { margin-bottom: 0; }
+        .footer { text-align: center; margin-top: 60px; opacity: 0.5; font-size: 13px; }
+    </style>
+</head>
+<body>
+<div class="content">
+
+    <a href="index.html" class="btn-back">← Back to App</a>
+    <h1>What's New</h1>
+    <div class="subtitle">Release history for the Toastmaster Meeting App</div>
+
+    <!-- v1.1.0 -->
+    <div class="release">
+        <div class="release-header">
+            <div>
+                <div class="version-num">Version 1.1</div>
+                <div class="release-date">May 2026</div>
+            </div>
+            <span class="tag tag-current">Current</span>
+        </div>
+        <ul>
+            <li><strong>Word of the Day</strong> — set today's word from the Ah-Counter menu. It appears at the top of the tally grid with a gold highlight and is tracked separately from regular filler words.</li>
+            <li><strong>Add filler words on the fly</strong> — tap + Add Filler Word at the bottom of the tracking grid to add a new word during a live session without leaving the screen.</li>
+            <li><strong>Bold timer colors</strong> — green, yellow, and red backgrounds are now full-screen bold colors, much easier to read across the room.</li>
+            <li><strong>Cancel button on timer</strong> — you can now exit the timer without saving by tapping Cancel.</li>
+            <li><strong>Clear X on name input</strong> — tap the ✕ inside the name field to instantly clear what you've typed and reset the roster list.</li>
+            <li><strong>Filler count merging</strong> — if the same speaker is tracked more than once in a meeting, their filler counts now add together instead of being overwritten.</li>
+            <li><strong>Backup and restore</strong> — export your full roster, filler words, and meeting logs to a JSON file. Import on any device to restore your setup.</li>
+            <li><strong>Manual and changelog</strong> — tap Manual in the footer for a full guide to every feature.</li>
+        </ul>
+    </div>
+
+    <!-- v1.0.0 -->
+    <div class="release">
+        <div class="release-header">
+            <div>
+                <div class="version-num">Version 1.0</div>
+                <div class="release-date">May 2026 · Initial Release</div>
+            </div>
+            <span class="tag tag-feature">Launch</span>
+        </div>
+        <ul>
+            <li><strong>Timer</strong> — full-screen color cues for Table Topics, Evaluations, Ice Breakers, and Speeches, plus a custom mode for any other role.</li>
+            <li><strong>Ah-Counter</strong> — tap-to-count tally cards for AH, UH, UM, ER, SO, LIKE, and YOU KNOW.</li>
+            <li><strong>Speaker roster</strong> — type a name once and it's saved permanently for future meetings.</li>
+            <li><strong>Meeting report</strong> — all timed sessions and filler counts in one place, with Copy and Share.</li>
+            <li><strong>Markdown export</strong> — format the report as a table for Slack and email.</li>
+            <li><strong>Installable PWA</strong> — add to your home screen for a full-screen app experience with no browser chrome.</li>
+        </ul>
+    </div>
+
+    <div class="footer">
+        <p>Toastmaster Meeting App · Southern Dutchess Toastmasters</p>
+    </div>
+
+</div>
+</body>
+</html>

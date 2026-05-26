@@ -1,5 +1,5 @@
-const CACHE = 'tm-app-v1.0.0';
-const ASSETS = ['index.html', 'manifest.json'];
+const CACHE = 'tm-app-v1.1.0';
+const ASSETS = ['index.html', 'manifest.json', 'manual.html', 'changelog.html'];
 
 self.addEventListener('install', e => {
     self.skipWaiting();

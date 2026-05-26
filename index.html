@@ -509,6 +509,7 @@
         <div style="display:flex;gap:10px;margin-bottom:14px;justify-content:center;">
             <a href="https://bit.ly/m/SDTM" target="_blank" style="flex:1;max-width:160px;background:#ECEAE4;color:var(--accent);text-decoration:none;padding:10px;border-radius:10px;font-weight:700;font-size:14px;border:1px solid var(--border);text-align:center;">Website ↗</a>
             <a href="manual.html" style="flex:1;max-width:160px;background:#ECEAE4;color:var(--accent);text-decoration:none;padding:10px;border-radius:10px;font-weight:700;font-size:14px;border:1px solid var(--border);text-align:center;">Manual ↗</a>
+            <a href="changelog.html" style="flex:1;max-width:160px;background:#ECEAE4;color:var(--accent);text-decoration:none;padding:10px;border-radius:10px;font-weight:700;font-size:14px;border:1px solid var(--border);text-align:center;">What's New ↗</a>
         </div>
         <p>Southern Dutchess Toastmasters</p>
         <div class="version" id="versionLabel">Version 1.0.0</div>
@@ -647,11 +648,36 @@ let timerElapsed   = 0;
 let timerPaused    = false;
 
 // ── INIT ──────────────────────────────────
+const APP_VERSION = '1.1.0';
+
 function init() {
     document.getElementById('mdToggle').checked = localStorage.getItem(KEY_MD) === 'true';
-    document.getElementById('versionLabel').innerText = 'Version 1.0.0';
+    document.getElementById('versionLabel').innerText = 'Version ' + APP_VERSION;
     refreshSpeakerList();
     initWod();
+    checkVersion();
+}
+
+function checkVersion() {
+    const lastSeen = localStorage.getItem('tm_last_seen_version');
+    if (lastSeen === APP_VERSION) return;
+    // New version detected — show what's new modal
+    setTimeout(() => {
+        openModal(
+            '🎉 Version ' + APP_VERSION + ' is here',
+            '<div style="font-size:15px;color:var(--subtext);line-height:1.5;">This app has been updated with new features and improvements.</div>',
+            () => {
+                localStorage.setItem('tm_last_seen_version', APP_VERSION);
+                window.open('changelog.html', '_blank');
+            },
+            'Maybe Later',
+            "See What's New"
+        );
+        document.getElementById('modalCancel').onclick = () => {
+            localStorage.setItem('tm_last_seen_version', APP_VERSION);
+            document.getElementById('modal').style.display = 'none';
+        };
+    }, 800);
 }
 
 // ── SCREENS ───────────────────────────────
